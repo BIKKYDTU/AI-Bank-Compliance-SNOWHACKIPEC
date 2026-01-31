@@ -19,11 +19,16 @@ class VectorStore:
         os.makedirs(abs_persist_path, exist_ok=True)
         self.embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
-        
+
         # Fixed initialization for newer ChromaDB
         client_settings = Settings(is_persistent=True, persist_directory=abs_persist_path, anonymized_telemetry=False)
-        chroma_client = chromadb.PersistentClient(path=abs_persist_path, settings=client_settings)
-        self.vectorstore = Chroma(client=chroma_client, collection_name="bankguard_docs", embedding_function=self.embeddings)
+        self.client = chromadb.PersistentClient(path=abs_persist_path, settings=client_settings)
+        self.collection_name = "bankguard_docs"
+        self.vectorstore = Chroma(
+            client=self.client,
+            collection_name=self.collection_name,
+            embedding_function=self.embeddings,
+        )
 
     def add_documents(self, documents):
         chunks = self.text_splitter.split_documents(documents)
@@ -31,3 +36,15 @@ class VectorStore:
 
     def search(self, query, k=TOP_K_RESULTS, where=None):
         return self.vectorstore.similarity_search(query, k=k, filter=where)
+
+    def clear(self):
+        try:
+            self.client.delete_collection(self.collection_name)
+        except Exception:
+            # If collection doesn't exist yet, ignore.
+            pass
+        self.vectorstore = Chroma(
+            client=self.client,
+            collection_name=self.collection_name,
+            embedding_function=self.embeddings,
+        )
