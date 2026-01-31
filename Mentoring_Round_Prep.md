@@ -168,9 +168,31 @@
 
 ---
 
+## Deployment options
+
+Ways to deploy BankGuard (Streamlit + Python + ChromaDB + HuggingFace embeddings):
+
+| Option | Description | Pros | Cons |
+|--------|-------------|------|------|
+| **1. Streamlit Community Cloud** | Deploy from GitHub; Streamlit hosts the app. | Free tier, no server setup, easy CI. | Ephemeral storage (ChromaDB data may not persist); resource limits. |
+| **2. Hugging Face Spaces** | Deploy as a Space (Streamlit SDK); HF hosts. | Free, good for demos, discoverable. | Same persistence caveat for ChromaDB; limits on free tier. |
+| **3. Docker + cloud** | Build a Docker image; run on AWS ECS, GCP Cloud Run, Azure Container Apps, Railway, Render, Fly.io. | Full control, persistent volume for ChromaDB, scalable. | You manage image, env vars, secrets. |
+| **4. VPS (e.g. DigitalOcean, Linode)** | Linux VM; install Python, run `streamlit run` or Docker. | Simple, cheap, full control, persistent disk for `data/chroma_db`. | You manage OS, updates, process. |
+| **5. On-prem / bank server** | Run inside bank's data centre or private cloud. | Data stays on-prem, meets strict compliance. | Bank's IT handles hosting. |
+| **6. Kubernetes** | Streamlit and (if split later) API as pods; PersistentVolume for ChromaDB. | Scaling, multi-replica, enterprise DevOps. | More complex; for larger scale. |
+
+**Important:** ChromaDB needs a **persistent directory** (`./data/chroma_db`). Use a mounted volume or external vector DB in production. HuggingFace model downloads on first run—ensure disk and network. Use env vars for secrets.
+
+**Commands (reference):**  
+- Local: `streamlit run frontend/streamlit_app.py`  
+- Docker: `docker build -t bankguard . && docker run -p 8501:8501 -v bankguard_data:/app/data bankguard`  
+- Streamlit Cloud: run command `streamlit run frontend/streamlit_app.py`, root = project folder.
+
+---
+
 ## Quick reference – Evaluation vs content
 
-| Criterion | Where it’s covered |
+| Criterion | Where it's covered |
 |-----------|--------------------|
 | **Idea & Feasibility** | Section 1 – idea, feasibility table, one-liner |
 | **USP & Impact** | Section 2 – USPs, impact table, impact statement |
