@@ -117,6 +117,11 @@ section[data-testid="stSidebar"] {
     border-radius: 8px;
     font-weight: 600;
 }
+
+/* Action Plan table content text */
+[data-testid="stTable"] td, [data-testid="stTable"] th {
+    color: #111827 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -259,7 +264,8 @@ with tab1:
                 res = st.session_state.orchestrator.process_pdf(file_bytes, uploaded_file.name)
                 st.session_state.result = res
                 st.success("Analysis Complete!")
-                st.toast("Analysis completed successfully.", icon="✅")
+                st.toast("🎉 Analysis completed successfully!", icon="✅")
+                st.balloons()
         else:
             st.warning("Please upload a file first.")
 
